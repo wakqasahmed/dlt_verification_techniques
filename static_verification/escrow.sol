@@ -18,6 +18,28 @@ contract Escrow2 {
 
     State public state;
 
+    /*@ invariant
+      @   address(this) != owner,
+      @   address(this) != bidder;
+      @*/
+
+    /* Recall:
+     * net(addr) := (funds sent from addr to this) - (funds sent from this to addr)
+     */
+    /*@ invariant
+      @   bid == net(bidder) + net(owner),
+      @   (\forall address a;
+      @                (a != owner && a != bidder && a != address(this))
+      @            ==> net(a) == 0),
+      @   net(owner) <= 0,
+      @   mode == Open ==> net(owner) == 0;
+      @*/
+    
+1. amountInEscrow == contract.balance
+2. sender == _sender
+3. receiver == _receiver
+4. delayUntilRelease == _delayUntilRelease    
+
     modifier by(address _address) {
         require(msg.sender == _address);
         _;

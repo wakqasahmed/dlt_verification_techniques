@@ -42,7 +42,6 @@ contract OneAuction {
       @   mode == Open ==> net(owner) == 0;
       @*/
     
-    
     // Modifier to check mode of auction
     modifier inMode(AuctionMode _auctionMode) {
         require (mode == _auctionMode);
