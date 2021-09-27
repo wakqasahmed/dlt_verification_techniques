@@ -19,23 +19,16 @@ contract('Escrow', async (accs) => {
 
 contract('Escrow', function (accounts) {
   // FUNCTION WILL RETURN ALL GANACHE ACCOUNTS
-  // var contractInstance;
-  // var _EscrowAmount;
-  // var _Sender;
 
   // CONSTRUCTOR TEST
   it('Initialises Contract', function () {
     return EscrowContract.deployed().then(function (instance) {
       contractInstance = instance;
 
-      // instance.sender = accounts[1];
-      // instance.receiver = accounts[2];
-
       contractInstance.setSenderAccount(senderAccount);
       contractInstance.setReceiverAccount(receiverAccount);
       contractInstance.setReleaseTime(0);
 
-      // TEST FOR CONTRACT:
       return contractInstance;
     });
   });
@@ -65,7 +58,7 @@ contract('Escrow', function (accounts) {
     });
 
     it('has attempt to deposit value by someone other than sender failed', async () => {
-      // TEST THAT FUNCTION REVERTS IF ZERO VALUE IS DETECTED:
+      // TEST THAT FUNCTION REVERTS IF UNAUTHORIZED CALLER IS DETECTED:
 
       let _Amount = 1;
 
@@ -79,7 +72,7 @@ contract('Escrow', function (accounts) {
     });
 
     it('has attempt to deposit value by receiver failed', async () => {
-      // TEST THAT FUNCTION REVERTS IF ZERO VALUE IS DETECTED:
+      // TEST THAT FUNCTION REVERTS IF UNAUTHORIZED CALLER IS DETECTED:
 
       let _Amount = 1;
 
@@ -93,7 +86,7 @@ contract('Escrow', function (accounts) {
     });
 
     it('has attempt to deposit value twice by sender failed', async () => {
-      // TEST THAT FUNCTION REVERTS IF ZERO VALUE IS DETECTED:
+      // TEST THAT FUNCTION REVERTS IF INAPPROPRIATE STATE IS DETECTED:
 
       let _Amount = 1;
 
@@ -111,17 +104,8 @@ contract('Escrow', function (accounts) {
       );
     });
 
-    /*
-    it('has owner failed to break the Piggy Bank in Unused State', async function () {
-      // TEST THAT FUNCTION REVERTS IF INCORRECT STATE IS DETECTED:
-      await truffleAssert.reverts(
-        contractInstance.breakPiggyBank({ from: ownerAccount }),
-        'state should be in use'
-      );
-    });
-  */
     it('has attempt by someone other than receiver to withdraw failed', async () => {
-      // TEST THAT FUNCTION REVERTS IF INCORRECT SENDER IS DETECTED:
+      // TEST THAT FUNCTION REVERTS IF UNAUTHORIZED CALLER IS DETECTED:
 
       await truffleAssert.reverts(
         contractInstance.withdrawFromEscrow({ from: testAccount }),
@@ -130,11 +114,20 @@ contract('Escrow', function (accounts) {
     });
 
     it('has attempt by sender to withdraw failed', async () => {
-      // TEST THAT FUNCTION REVERTS IF INCORRECT SENDER IS DETECTED:
+      // TEST THAT FUNCTION REVERTS IF UNAUTHORIZED CALLER IS DETECTED:
 
       await truffleAssert.reverts(
         contractInstance.withdrawFromEscrow({ from: senderAccount }),
         'address should be registered with appropriate role'
+      );
+    });
+
+    it('has attempt by receiver to withdraw failed', async () => {
+      // TEST THAT FUNCTION REVERTS IF INAPPROPRIATE STATE IS DETECTED:
+
+      await truffleAssert.reverts(
+        contractInstance.withdrawFromEscrow({ from: receiverAccount }),
+        'withdrawal should be authorized by receiver and sender both'
       );
     });
   });
@@ -180,13 +173,6 @@ contract('Escrow', function (accounts) {
     it('has attempt to release escrow by sender called successfully', async () => {
       // TEST THAT FUNCTION EXECUTES SUCCESSFULLY
 
-      // let _Amount = 1;
-
-      // await contractInstance.placeInEscrow({
-      //   from: senderAccount,
-      //   value: web3.utils.toWei(_Amount.toString(), 'ether'),
-      // });
-
       await contractInstance.releaseEscrow({
         from: senderAccount,
       });
@@ -194,13 +180,6 @@ contract('Escrow', function (accounts) {
 
     it('has attempt to release escrow by receiver called successfully', async () => {
       // TEST THAT FUNCTION EXECUTES SUCCESSFULLY
-
-      // let _Amount = 1;
-
-      // await contractInstance.placeInEscrow({
-      //   from: senderAccount,
-      //   value: web3.utils.toWei(_Amount.toString(), 'ether'),
-      // });
 
       await contractInstance.releaseEscrow({
         from: receiverAccount,
@@ -210,55 +189,9 @@ contract('Escrow', function (accounts) {
     it('has attempt to withdraw by receiver called successfully', async () => {
       // TEST THAT FUNCTION EXECUTES SUCCESSFULLY
 
-      // let _Amount = 1;
-
-      // await contractInstance.placeInEscrow({
-      //   from: senderAccount,
-      //   value: web3.utils.toWei(_Amount.toString(), 'ether'),
-      // });
-
-      // await contractInstance.releaseEscrow({
-      //   from: receiverAccount,
-      // });
-
-      // await contractInstance.releaseEscrow({
-      //   from: senderAccount,
-      // });
-
       await contractInstance.withdrawFromEscrow({
         from: receiverAccount,
       });
     });
-
-    /*
-  it('Escrow is placed successfully', function () {
-    return EscrowContract.deployed()
-      .then(function (instance) {
-        contractInstance = instance;
-        let _EscrowAmount = 2;
-        let _Sender = accounts[0];
-        // TEST THAT FUNCTION PLACE IN ESCROW IF SUCCESFUL:
-        return contractInstance.placeInEscrow(_EscrowAmount, { from: _Sender });
-      })
-      .then(function (escrowPlaced) {
-        // CHECKING FOR ALL EVENT STEPS:
-        assert.equal(escrowPlaced.logs.length, 1, 'Event triggered.');
-        assert.equal(
-          escrowPlaced.logs[0].event,
-          'EscrowPlaced',
-          'Event expected: Escrow Placed Event.'
-        );
-        assert.equal(
-          escrowPlaced.logs[0].args._value,
-          _EscrowAmount,
-          'From account logged'
-        );
-        assert.equal(
-          escrowPlaced.logs[0].args._time,
-          __now,
-          'To account logged.'
-        );
-      });
-  });*/
   });
 });

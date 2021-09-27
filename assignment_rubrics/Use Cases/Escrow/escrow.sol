@@ -19,12 +19,12 @@ contract Escrow2 {
     State public state;
 
     modifier by(address _address) {
-        require(msg.sender == _address, "address should be registered with appropriate role");
+        require(msg.sender == _address);
         _;
     }
 
     modifier stateIs(State _state) {
-        require(state == _state, "state should be appropriate to execute this function");
+        require(state == _state);
         _;
     }
 
@@ -41,20 +41,8 @@ contract Escrow2 {
         state = State.AwaitingDeposit;
     }
 
-    function setSenderAccount(address payable _senderAcc) public {
-        sender = _senderAcc;
-    }
-
-    function setReceiverAccount(address payable _receiverAcc) public {
-        receiver = _receiverAcc;
-    }
-
-    function setReleaseTime(uint _releaseTime) public {
-        releaseTime = _releaseTime;
-    }
-
     function placeInEscrow() public by(sender) stateIs(State.AwaitingDeposit) payable {
-        require (msg.value > 0, "deposit amount should be greater than zero");
+        require (msg.value > 0);
 
         // Update parameters of escrow contract
         amountInEscrow = msg.value;
@@ -70,8 +58,8 @@ contract Escrow2 {
     }
 
     function withdrawFromEscrow() public by(receiver) stateIs(State.DepositPlaced) {
-        require (now >= releaseTime, "current time should be greater than release time");
-        require (releasedByReceiver && releasedBySender, "withdrawal should be authorized by receiver and sender both");
+        require (now >= releaseTime);
+        require (releasedByReceiver && releasedBySender);
 
         // Set contract state
         state = State.Withdrawn;
@@ -81,5 +69,6 @@ contract Escrow2 {
 
         // Set internal parameters of smart contract
         amountInEscrow = 0;
+
     }
 }
