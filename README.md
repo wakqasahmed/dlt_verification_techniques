@@ -1,5 +1,7 @@
 # DLT5402 - Verification Techniques for Smart Contract
 
+[Assignment Solution](./DLT5402%20Verification%20Techniques%20Assignment.pdf)
+
 ### Question 0: Specification Languages
 
 You can find one property written for
@@ -15,7 +17,7 @@ using each of:
 - LTL
 - CTL
 
-### Question 1: Testing
+### [Question 1: Testing](./testing)
 
 _Pre-requisite (Recommended)_
 
@@ -38,10 +40,6 @@ _Pre-requisite (Recommended)_
 - `cd coverage`
 - `lite-server index.html` OR `http-server index.html`
 
-### Question 2: Runtime Verification
+### [Question 2: Runtime Verification](./runtime_verification)
 
-You can find Dynamic Event Automata written in the document.
-
-### Question 3: Static Verification
-
-_Functional Specifications_
+### [Question 3: Static Verification](./static_verification)
