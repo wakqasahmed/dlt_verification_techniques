@@ -1,0 +1,51 @@
+monitor PiggyBank{
+
+    declarations{
+        uint total;
+        address payable private owner_address;        
+        function getTotal() private returns(uint) { return value; }
+        function getOwner() private returns(address payable) { return owner_address; }
+    }
+
+    initialisation{
+        LARVA_EnableContract();
+    }
+
+    reparation {
+        getOwner().transfer(getTotal());
+        LARVA_DisableContract();
+    }
+
+    satisfaction {
+        getOwner().transfer(getTotal());
+    }
+
+    DEA NoReduction {
+        states {
+            InUse: initial;
+            Broken: accept;
+            TimeOfFirstDeposit;
+            BalanceReduced: bad;
+        }
+        transitions {
+            InUse -[after(breakPiggyBank) | balance == 0 ]-> Broken;
+            InUse -[after(addMoney(_value)) | _value <= balance ~> total += _value;]-> TimeOfFirstDeposit;
+            TimeOfFirstDeposit -[after(addMoney(_value)) | _value <= balance ~> total += _value;]-> InUse;
+            TimeOfFirstDeposit -[balance@(LARVA_previous_balance > balance)]-> BalanceReduced;
+        }
+    }
+    
+    DEA InUseUntilBroken {
+        states {
+            Unused: initial;
+            InUse: accept;
+            TimeOfFirstDeposit;
+            BrokenUnused: bad;
+        }
+        transitions {
+            Unused -[after(addMoney)]-> InUse;
+            Unused -[after(addMoney)]-> TimeOfFirstDeposit;
+            Unused -[after(breakPiggyBank)]-> BrokenUnused;
+        }
+    }
+}

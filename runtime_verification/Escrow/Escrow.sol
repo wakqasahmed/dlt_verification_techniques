@@ -18,21 +18,6 @@ contract Escrow2 {
 
     State public state;
 
-    /*@ invariant
-      @   amountInEscrow == address(this).balance,
-      @   sender == _sender,
-      @   receiver == _receiver,
-      @   delayUntilRelease == _delayUntilRelease;            
-      @*/
-
-    /*@ invariant
-      @   (\forall address a;
-      @                (a != sender && a != receiver && a != address(this))
-      @            ==> net(a) == 0),
-      @   state == AwaitingDeposit || state == Withdrawn ==> amountInEscrow == 0,
-      @   state == DepositPlaced ==> amountInEscrow > 0;
-      @*/
-
     modifier by(address _address) {
         require(msg.sender == _address);
         _;
@@ -56,15 +41,6 @@ contract Escrow2 {
         state = State.AwaitingDeposit;
     }
 
-    /*@ succeeds_only_if
-      @   state == State.AwaitingDeposit,
-      @   msg.sender == sender,
-      @   msg.value > 0;
-      @ after_success
-      @   amountInEscrow > 0,
-      @   net(sender) == msg.value,
-      @   releaseTime >= now + delayUntilRelease;
-      @*/
     function placeInEscrow() public by(sender) stateIs(State.AwaitingDeposit) payable {
         require (msg.value > 0);
 
@@ -81,16 +57,6 @@ contract Escrow2 {
         if (msg.sender == receiver) { releasedByReceiver = true; }
     }
 
-    /*@ succeeds_only_if
-      @   msg.sender == receiver,
-      @   state == State.DepositPlaced,      
-      @   now >= releaseTime,
-      @   releasedBySender == true || releasedByReceiver == true;
-      @ after_success
-      @   state == State.Withdrawn,            
-      @   net(receiver) == -net(sender),
-      @   amountInEscrow == 0;                  
-      @*/
     function withdrawFromEscrow() public by(receiver) stateIs(State.DepositPlaced) {
         require (now >= releaseTime);
         require (releasedByReceiver && releasedBySender);
@@ -103,5 +69,6 @@ contract Escrow2 {
 
         // Set internal parameters of smart contract
         amountInEscrow = 0;
+
     }
 }

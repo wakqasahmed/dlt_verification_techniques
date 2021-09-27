@@ -28,7 +28,7 @@ _Pre-requisite (Recommended)_
 
 - Open ganache GUI at Port 7545
 - `cd testing/Escrow` OR `cd testing/PiggyBank`
-- `truffle run tests`
+- `truffle test`
 
 #### How to run coverage
 

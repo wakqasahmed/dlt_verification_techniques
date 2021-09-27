@@ -1,0 +1,54 @@
+monitor Escrow2 {
+ 
+     declarations {
+         uint placedInEscrowTime;
+         uint minimumReleaseDelayTime = 24*15 hours;
+ 
+         address payable private sender_address;
+         address payable private receiver;
+         bool public releasedBySender;
+         bool public releasedByReceiver;
+         function getEscrowAmount() private returns(uint) { return value; }
+         function getSender() private returns(address payable) { return sender_address; }
+         function getReceiver() private returns(address payable) { return receiver; }
+ 
+         enum STATE { AwaitingDeposit, DepositPlaced, Withdrawn }
+         STATE private state = STATE.AwaitingDeposit;
+ 
+         function placeInEscrow() payable public{
+             require (state == STATE.AwaitingDeposit);
+             require (msg.value == getEscrowAmount());
+             require (msg.sender == getSender());
+             state = STATE.DepositPlaced;
+             LARVA_EnableContract();
+         }
+     }
+ 
+     initialisation {
+         sender_address = msg.sender;
+     }
+ 
+     reparation {
+         getReceiver().transfer(getEscrowAmount());
+         LARVA_DisableContract();
+     }
+ 
+     satisfaction {
+         getReceiver().transfer(getEscrowAmount());
+     }
+ 
+     DEA Withdrawn{
+         states{
+             Start: initial;
+             DepositPlaced;
+             Withdrawn: accept;
+             WithdrawalFailure: bad;
+         }
+ 
+         transitions{
+             Start -[after(placed) | ~> placedInEscrowTime = now;]-> Deposited;
+             Deposited -[after(withdrawal) | now - placedInEscrowTime <= minimumReleaseDelayTime]-> Withdrawn;
+             Deposited -[after(withdrawal) | now - placedInEscrowTime >= minimumReleaseDelayTime]-> WithdrawalFailure;
+         }
+     }
+ }

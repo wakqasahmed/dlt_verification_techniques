@@ -8,15 +8,6 @@ contract PiggyBank1 {
     uint public timeOfFirstDeposit;
     uint public balance;
 
-    /*@ invariant
-      @   address(this) == owner;
-      @*/
-
-    /*@ invariant
-      @   balance == address(this).balance,    
-      @   state == Unused || state == Broken ==> balance == 0;
-      @*/
-
     constructor (address payable _owner) public {
         owner = _owner;
         state = PiggyBankState.Unused;
@@ -38,14 +29,6 @@ contract PiggyBank1 {
         _;
     }
 
-    /*@ succeeds_only_if
-      @   state != PiggyBankState.Broken,
-      @   msg.sender == owner,
-      @   msg.value > 0;
-      @ after_success
-      @   balance > \old(balance),
-      @   state == PiggyBankState.InUse;
-      @*/
     function addMoney() byOwner notBroken public payable {
         balance += msg.value;
         if (state == PiggyBankState.Unused) {
@@ -54,14 +37,6 @@ contract PiggyBank1 {
         }
     }
 
-    /*@ succeeds_only_if
-      @   msg.sender == owner,
-      @   state == PiggyBankState.InUse,      
-      @   now >= timeOfFirstDeposit + 365 days;
-      @ after_success
-      @   state == PiggyBankState.Broken,
-      @   net(owner) == -net(balance);
-      @*/
     function breakPiggyBank() byOwner inUse public {
         require (now >= timeOfFirstDeposit + 365 days);
 
